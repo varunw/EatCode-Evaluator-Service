@@ -6,6 +6,7 @@ import { JAVA_IMAGE } from '../utils/constants';
 
 import createContainer from './containerFactory';
 import { decodeDockerStream } from './dockerHelper';
+import pullImage from './pullImage';
 
 async function runJava(code:string,inputTestCase:string){
 

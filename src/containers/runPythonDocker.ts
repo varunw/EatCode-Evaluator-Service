@@ -6,6 +6,7 @@ import { PYTHON_IMAGE } from '../utils/constants';
 
 import createContainer from './containerFactory';
 import { decodeDockerStream } from './dockerHelper';
+import pullImage from './pullImage';
 
 async function runPython(code:string,inputTestCase:string){
 
