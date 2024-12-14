@@ -4,6 +4,7 @@ import serverConfig from './config/serverConfig';
 import apiRouter from './routes';
 import sampleQueueProducer from './producers/sampleQueueProducer';
 import SampleWorker from './workers/SampleWorker';
+import runPython from './containers/runPythonDocker';
 
 const app:Express = express();
 
@@ -24,4 +25,6 @@ app.listen(serverConfig.PORT,()=>{
         position:"SDE 3 L3",
         location:"London"
     },1);
+    const code = `print("Hello)`;
+    runPython(code);
 });
