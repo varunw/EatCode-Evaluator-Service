@@ -26,5 +26,5 @@ app.listen(serverConfig.PORT,()=>{
         location:"London"
     },1);
     const code = `print("Hello)`;
-    runPython(code);
+    runPython(code,"100");
 });

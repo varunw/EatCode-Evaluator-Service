@@ -7,11 +7,13 @@ import { PYTHON_IMAGE } from '../utils/constants';
 import createContainer from './containerFactory';
 import { decodeDockerStream } from './dockerHelper';
 
-async function runPython(code:string){
+async function runPython(code:string,inputTestCase:string){
 
     const rawLogBuffer:Buffer[] = [];
     console.log("Initializing New docker container");
-    const pythonDockerContainer = await createContainer(PYTHON_IMAGE,['python3','-c',code,'stty -echo']);
+    const runCommand = `echo '${code.replace(/'/g, `'\\"`)}' > test.py && echo '${inputTestCase.replace(/'/g, `'\\"`)}' | python3 test.py`;
+    console.log(runCommand);
+    const pythonDockerContainer = await createContainer(PYTHON_IMAGE,['python3','/bin/sh','-c',code,runCommand]);
 
     await pythonDockerContainer.start();
 
