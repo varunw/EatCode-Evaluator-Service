@@ -10,7 +10,8 @@ import { decodeDockerStream } from './dockerHelper';
 import pullImage from './pullImage';
 
 class PythonExecutor implements CodeExecutorStrategy{
-    async execute(code: string, inputTestCase: string): Promise<ExecutionResponse> {
+    async execute(code: string, inputTestCase: string,outputTestCase:string): Promise<ExecutionResponse> {
+        console.log(outputTestCase);
         const rawLogBuffer:Buffer[] = [];
     console.log("Initializing New docker container");
     await pullImage(PYTHON_IMAGE);
