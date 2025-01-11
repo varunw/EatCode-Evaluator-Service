@@ -2,6 +2,7 @@
 
 // import { TestCase } from '../types/testCases';
 
+import Dockerode from 'dockerode';
 import CodeExecutorStrategy, { ExecutionResponse } from '../types/CodeExecutorStrategy';
 import { JAVA_IMAGE } from '../utils/constants';
 
@@ -35,9 +36,17 @@ class JavaExecutor implements CodeExecutorStrategy{
     })
     
     try {
-        const codeResponse:string=await this.fetchDecodedStream(loggerStream,rawLogBuffer);
-        return {output:codeResponse,status:"Completed"};
+        const codeResponse:string=await this.fetchDecodedStream(loggerStream,rawLogBuffer,javaDockerContainer);
+        if(codeResponse.trim()===outputCase.trim()){
+            return {output:codeResponse,status:"SUCCESS"};
+        }else{
+            return {output:codeResponse,status:"WA"};
+        }
+
     } catch (error) {
+        if(error==="TLE"){
+            await javaDockerContainer.kill();
+        }
         return {output:error as string,status:"Error"}
     } finally{
         await javaDockerContainer.remove();
@@ -49,9 +58,20 @@ class JavaExecutor implements CodeExecutorStrategy{
     // return javaDockerContainer;
     }
 
-    fetchDecodedStream(loggerStream:NodeJS.ReadableStream,rawLogBuffer:Buffer[]):Promise<string>{
+    fetchDecodedStream(loggerStream:NodeJS.ReadableStream,rawLogBuffer:Buffer[],container:Dockerode.Container):Promise<string>{
+        
         return new Promise((res,rej)=>{
+            const timeout = setTimeout(()=>{
+                console.log("timeout called");
+                container.stop().then(()=>{
+                    rej('Time Limit Exceeded');
+                }).catch((error)=>{
+                    rej(error);
+                });
+                container.remove();
+            },2000);
             loggerStream.on('end',()=>{
+                clearTimeout(timeout);
                 console.log(rawLogBuffer);
                 const completeBuffer = Buffer.concat(rawLogBuffer);
                 const decodedStream = decodeDockerStream(completeBuffer);
